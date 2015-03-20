@@ -14,12 +14,17 @@ class PhotoPublisher
         @photo_date
         @date
         @event_name
+        @opts = OptionParser.new
+        initialize_parser
     end
 
     def initialize_parser
+        @opts.on('-d', '--directory=PHOTO_DIR', "set a photo directory") do |dir|
+            @photo_dir = dir
+        end
     end
 
-    def load_photos(photo_dir)
+    def get_photo_names(photo_dir)
         dir = Dir.open("photo_dir")
         photo_names = Array.new
         dir.each do |name|
@@ -28,13 +33,16 @@ class PhotoPublisher
         return photo_names
     end
 
+    def should_rotate?(photo)
+    end
+
     def rotate(photo)
     end
 
     def resize(width, height, photo)
     end
 
-    def extract_date(photo_names)
+    def get_date(photo_names)
         photos = Hash.new
         photo_names.each do |name|
             date = EXIFR::JPEG::new(name).date_time
