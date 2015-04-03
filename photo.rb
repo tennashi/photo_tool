@@ -4,7 +4,6 @@ require 'rubygems'
 require 'bundler/setup'
 
 require 'date'
-require 'kconv'
 require 'exifr'
 require 'RMagick'
 
