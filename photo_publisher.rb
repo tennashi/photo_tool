@@ -95,6 +95,23 @@ class PhotoPublisher
     end
 
     def generate_photo_html
+        html = ''
+        html += <<-EOHtml
+        <html lang="ja">
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+            <meta name="Author" content="root">
+            <meta name="robots" content="noindex,nofollow">
+            <meta name="robots" content="noarchive">
+            <meta name="generator" content="photo_publisher.rb ver1.0"> 
+            <title>#{@event_name}</title>
+            <style type="text/css">
+            <!--
+                BODY { font-style:osaka;color:#000080; }
+                a:link { color:#269900; }
+                a:visited { color:#269900; }
+                A{text-decoration:none; font-weight:bold; }
+                A:hover { color:#99FF33 }
     end
 
     def generate_page_html
