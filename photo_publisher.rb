@@ -10,17 +10,17 @@ require 'RMagick'
 
 require './Photo'
 
-class PhotoPublisher
+class PhotoPublisher < Tool
     def initialize
+        super
         @event_date = nil
         @event_name = nil
-        @pub_dir_name = nil
+        @pub_dir_name = nil # 公開するディレクトリ名
         @opts = OptionParser.new
         @photo_dir = PhotoDir.new
         @user = nil
         @password = nil
         initialize_parser
-        initialize_flags
     end
 
     def initialize_parser
@@ -60,16 +60,15 @@ class PhotoPublisher
     def set_photo_dir(dir)
         dir = PhotoDir.new(dir)
         unless dir.exist? then
-            STDERR.puts "The directory #{dir} does NOT exist!"
-            exit 1
+            error "The directory #{dir} does NOT exist!"
         end
         @photo_dir = dir
-        STDOUT.puts "Set photo directory as #{@photo_dir}."
+        info "Set photo directory as #{@photo_dir}."
     end
 
     def set_user(user)
         @user = user
-        STDOUT.puts "Set user as #{@user}."
+        info "Set user as #{@user}."
     end
 
     def create_publish_dir
@@ -79,7 +78,7 @@ class PhotoPublisher
             dir_path = Pathname.new("/var/www/htdocs/photos/#{@pub_dir_name}")
         end
         pub_dir = dir_path.mkdir
-        STDOUT.puts "Create publish directory as #{@pub_dir_name}"
+        info "Create publish directory as #{@pub_dir_name}"
         [
             './html'
             './large',
@@ -91,10 +90,10 @@ class PhotoPublisher
 
     def set_password(password)
         @password = password
-        STDOUT.puts "Set password"
+        info "Set password"
     end
 
-    def generate_photo_html
+    def generate_thumbnail_html(photo, pre, post)
         html = ''
         html += <<-EOHtml
         <html lang="ja">
@@ -112,6 +111,29 @@ class PhotoPublisher
                 a:visited { color:#269900; }
                 A{text-decoration:none; font-weight:bold; }
                 A:hover { color:#99FF33 }
+            -->
+            </STYLE>
+        </head>
+        <body>
+        <center>
+        <table><tr><td align="center">
+        <img src=#{photo} >
+        <br>
+        <br>
+        [ #{EXIFR::JPEG::new(photo).date_time.strftime("%m%d%H%M%S")} ]
+        <br>&nbsp;
+        </td></tr></table>
+        <table width="80%">
+            <tr>
+            <td bgcolor="#ADD8E6" align="center">
+                [ #{Pathname.new(pre).exist? ? "<A HERF=#{pre}>PRE</A>" : "PRE"} ] &nbsp;&nbsp;     [ <A HREF="../index.html">index</A> ] &nbsp;&nbsp;      [ <A HREF=#{Pathname.new(post).exist? ? "<A HREF=#{post}>NEXT</A> ]     </td>
+            </tr>
+        </table>
+        </td></tr></table>
+        </center>
+        </body>
+        </html>
+        EOHtml
     end
 
     def generate_page_html
@@ -127,35 +149,6 @@ class PhotoPublisher
     def delete_exif
     end
 
-    def need_root_or_exit
-        if `id -u`.to_i != 0 then
-            STDERR.puts 'need root privilege!'
-            exit 1
-        end
-    end
-
-    def initialize_flags
-        @flags = {}
-        disable_mode :kusm_only
-        disable_mode :help
-    end
-
-    def disable_mode(type)
-        set_mode type, false
-    end
-
-    def enable_mode(type)
-        set_mode type, true
-    end
-
-    def set_mode(type, enabled)
-        @flags[type] = enabled
-        STDOUT.puts "#{enabled ? 'Enabled' : 'Disabled'} #{type} mode."
-    end
-
-    def is_mode?(type)
-        @flags[type]
-    end
 
     def main
     end

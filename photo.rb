@@ -8,23 +8,15 @@ require 'exifr'
 require 'RMagick'
 
 # 写真を一括処理するクラス
-class PhotoDir < Dir
-    def initialize(dir_name = "./")
-        Dir.chdir(dir_name)
-        @photo_dir = open(dir_name)
-        @names = grob(dir_name + "/*")
+class PhotoDir < Pathname
+    def initialize(dir_name = ".")
+        super(dir_name)
+        @dir_name = dir_name
+        @names = Dir.glob(dir_name + "/*")
+        @dates = self.get_date #配列
     end
 
-#    # 名前を配列に保管
-#    def get_name
-#        names = Array.new
-#        @photo_dir.each do |name|
-#            names << name
-#        end
-#        return names
-#    end
-
-    # 日付を配列に保管
+    # 日付を配列に保管(privateで良い)
     def get_date
         dates = Array.new
         # 時間を 0324123515 のように取得する
@@ -34,6 +26,7 @@ class PhotoDir < Dir
         return dates
     end
 
+    # privateで良い
     def get_hash_sorted_by_date!
         dates = @photo_dir.get_date
         # 2つの配列から Hash を作る
@@ -43,6 +36,7 @@ class PhotoDir < Dir
         return sorted
     end
 
+    #要テスト
     def rotate
         @names.each do |name|
             image = File.open(name).read
@@ -51,6 +45,7 @@ class PhotoDir < Dir
         end
     end
 
+    #要テスト
     def resize(height, width)
         @names.each do |name|
             image = File.open(name).read
